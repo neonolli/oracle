@@ -1,5 +1,5 @@
-use rand::Rng;
 use crate::answer::AnswerProvider;
+use rand::Rng;
 
 pub struct Coin<'a> {
     answers: Vec<&'a str>,
@@ -8,7 +8,7 @@ pub struct Coin<'a> {
 impl<'a> AnswerProvider<'a> for Coin<'a> {
     fn new() -> Coin<'a> {
         Coin {
-            answers: vec!["heads","tails"],
+            answers: vec!["heads", "tails"],
         }
     }
     fn answer(&self, question: &str, repeat_question: bool) {

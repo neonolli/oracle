@@ -6,9 +6,7 @@ pub struct HelpCommand<'a> {
 
 impl<'a> AnswerProvider<'a> for HelpCommand<'a> {
     fn new() -> HelpCommand<'a> {
-        HelpCommand {
-            _answers: vec![""],
-        }
+        HelpCommand { _answers: vec![""] }
     }
 
     fn answer(&self, _question: &str, _repeat: bool) {
@@ -26,11 +24,11 @@ impl<'a> AnswerProvider<'a> for HelpCommand<'a> {
         println!("\thelp -\tprints this text.");
         println!("\t\tcan be called with -h, --help");
         println!("Question: <optional>");
-        println!("");
+        println!();
         println!("At least one question or arguments must be supplied.");
         println!("set ORACLE_REPEAT_QUESTION environment variable");
         println!("to cause your questions to be repeated.");
         println!("===============================================================");
-
+        std::process::exit(1);
     }
 }

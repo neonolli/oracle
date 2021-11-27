@@ -1,39 +1,50 @@
-use rand::Rng;
 use rand::rngs::ThreadRng;
+use rand::Rng;
+
+pub enum TestType {
+    DIS,
+    NORM,
+    ADV,
+    DEFAULT,
+}
 
 pub struct TinyD6 {
     rand: ThreadRng,
 }
 
+impl Default for TinyD6 {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TinyD6 {
     pub fn new() -> TinyD6 {
         let rand = rand::thread_rng();
-        TinyD6 {
-            rand
-        }
+        TinyD6 { rand }
     }
 
-    fn get_rolls(&mut self, number_rolls: u8) -> Vec<i32> {
+    fn get_roll(&mut self, number_rolls: u8) {
         let mut response = vec![];
         let mut i = 0;
         while i < number_rolls {
             response.push(self.rand.gen_range(1..7));
             i += 1;
         }
-        return response;
+        println!("{}", self.get_output(&response));
     }
 
-    fn is_success(&mut self, rolls: &Vec<i32>) -> bool {
+    fn is_success(&mut self, rolls: &[i32]) -> bool {
         let mut success = false;
         for roll in rolls {
             if *roll >= 5 {
                 success = true;
             }
         }
-        return success;
+        success
     }
 
-    fn is_critical(&mut self, rolls: &Vec<i32>) -> bool {
+    fn is_critical(&mut self, rolls: &[i32]) -> bool {
         let mut critical = false;
         let mut count: i32 = 0;
         for roll in rolls {
@@ -46,71 +57,31 @@ impl TinyD6 {
         if count.abs() == rolls.len().try_into().unwrap() {
             critical = true;
         }
-        return critical;
+        critical
     }
 
-    pub fn roll(&mut self) {
-        let roll = self.get_rolls(2);
-        let mut output = format!("[{},{}] - ", roll[0], roll[1]);
-        let success = self.is_success(&roll);
-        let critical = self.is_critical(&roll);
-        if success {
-            if critical {
-                output.push_str("Critical Success!");
-            } else {
-                output.push_str("Success!");
-            }
+    fn get_output(&mut self, rolls: &[i32]) -> String {
+        let mut output = format!("{:?} - ", rolls);
+        let success = self.is_success(rolls);
+        let critical = self.is_critical(rolls);
+        if success && critical {
+            output.push_str("Critical Success!");
+        } else if success && !critical {
+            output.push_str("Success!");
+        } else if !success && critical {
+            output.push_str("Critical Fail!");
         } else {
-            if critical {
-                output.push_str("Critical Failure!");
-            } else {
-                output.push_str("Fail!");
-            }
+            output.push_str("Fail!");
         }
-        println!("{}", output);
+        output
     }
 
-    pub fn roll_adv(&mut self) {
-        let roll = self.get_rolls(3);
-        let mut output = format!("[{},{},{}] - ",
-                                 roll[0],
-                                 roll[1],
-                                 roll[2]);
-        let success = self.is_success(&roll);
-        let critical = self.is_critical(&roll);
-        if success {
-            if critical {
-                output.push_str("Critical Success!");
-            } else {
-                output.push_str("Success!");
-            }
-        } else {
-            if critical {
-                output.push_str("Critical Failure!");
-            } else {
-                output.push_str("Fail!");
-            }
-        }
-        println!("{}", output);
-    }
-    pub fn roll_dis(&mut self) {
-        let roll = self.get_rolls(1);
-        let mut output = format!("[{}] - ", roll[0]);
-        let success = self.is_success(&roll);
-        let critical = self.is_critical(&roll);
-        if success {
-            if critical {
-                output.push_str("Critical Success!");
-            } else {
-                output.push_str("Success!");
-            }
-        } else {
-            if critical {
-                output.push_str("Critical Failure!");
-            } else {
-                output.push_str("Fail!");
-            }
-        }
-        println!("{}", output);
+    pub fn roll(&mut self, roll_type: TestType) {
+        match roll_type {
+            TestType::ADV => self.get_roll(3),
+            TestType::DIS => self.get_roll(1),
+            TestType::NORM => self.get_roll(2),
+            TestType::DEFAULT => self.get_roll(2),
+        };
     }
 }

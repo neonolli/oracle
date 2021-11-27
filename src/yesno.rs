@@ -1,14 +1,14 @@
-use rand::Rng;
 use crate::answer::AnswerProvider;
+use rand::Rng;
 
 pub struct Yesno<'a> {
     answers: Vec<&'a str>,
-} 
+}
 
 impl<'a> AnswerProvider<'a> for Yesno<'a> {
     fn new() -> Yesno<'a> {
         Yesno {
-            answers: vec!["yes","no"],
+            answers: vec!["yes", "no"],
         }
     }
     fn answer(&self, question: &str, repeat_question: bool) {
