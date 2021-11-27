@@ -34,9 +34,18 @@ fn main() {
 
     args.iter().for_each(|arg| {
         match arg.as_str() {
-            "coin" => settings.coin = true,
-            "yesno" => settings.yesno = true,
-            "tinyd6" => settings.tinyd6 = TestType::NORM,
+            "coin" => {
+                settings.coin = true;
+                settings.eight_ball = false;
+            },
+            "yesno" => {
+                settings.yesno = true;
+                settings.eight_ball = false;
+            },
+            "tinyd6" => {
+                settings.tinyd6 = TestType::NORM;
+                settings.eight_ball = false;
+            },
             "adv" => settings.tinyd6 = TestType::ADV,
             "dis" => settings.tinyd6 = TestType::DIS,
             "help" => HelpCommand::new().answer("", false),
@@ -46,18 +55,12 @@ fn main() {
         };
     });
 
-    if !question.is_empty() {
-        if settings.eight_ball {
-            Crystal::new().answer(question, env::var("ORACLE_REPEAT_QUESTION").is_ok());
-        } else if settings.coin {
-            Coin::new().answer(question, env::var("ORACLE_REPEAT_QUESTION").is_ok());
-        } else if settings.yesno {
-            Yesno::new().answer(question, env::var("ORACLE_REPEAT_QUESTION").is_ok());
-        }
+    if settings.eight_ball {
+        Crystal::new().answer(question, env::var("ORACLE_REPEAT_QUESTION").is_ok());
     } else if settings.coin {
-        Coin::new().answer("", false);
+        Coin::new().answer(question, env::var("ORACLE_REPEAT_QUESTION").is_ok());
     } else if settings.yesno {
-        Yesno::new().answer("", false);
+        Yesno::new().answer(question, env::var("ORACLE_REPEAT_QUESTION").is_ok());
     } else {
         match settings.tinyd6 {
             TestType::NORM => TinyD6::new().roll(settings.tinyd6),
