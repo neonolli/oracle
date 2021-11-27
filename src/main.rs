@@ -7,13 +7,7 @@ use oracle::help::HelpCommand;
 use oracle::tinyd6::TinyD6;
 use oracle::tinyd6::TestType;
 use oracle::yesno::Yesno;
-
-struct Settings {
-    coin: bool,
-    yesno: bool,
-    tinyd6: TestType,
-    eight_ball: bool,
-}
+use oracle::Settings;
 
 fn main() {
     let mut settings = Settings {
@@ -63,9 +57,9 @@ fn main() {
         Yesno::new().answer(question, env::var("ORACLE_REPEAT_QUESTION").is_ok());
     } else {
         match settings.tinyd6 {
-            TestType::NORM => TinyD6::new().roll(settings.tinyd6),
-            TestType::DIS => TinyD6::new().roll(settings.tinyd6),
-            TestType::ADV => TinyD6::new().roll(settings.tinyd6),
+            TestType::NORM => TinyD6::new().roll(TestType::NORM),
+            TestType::DIS => TinyD6::new().roll(TestType::DIS),
+            TestType::ADV => TinyD6::new().roll(TestType::ADV),
             _ => panic!("Not a TinyD6 roll type."),
         };
     }
