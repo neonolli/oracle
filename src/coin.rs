@@ -1,22 +1,23 @@
-use crate::answer::AnswerProvider;
 use rand::Rng;
+use clap::ArgMatches;
 
 pub struct Coin<'a> {
     answers: Vec<&'a str>,
+    question: Option<&'a str>,
 }
 
-impl<'a> AnswerProvider<'a> for Coin<'a> {
-    fn new() -> Coin<'a> {
+impl<'a> Coin<'a> {
+    pub fn new(question_optional: &'a ArgMatches) -> Coin<'a> {
         Coin {
             answers: vec!["heads", "tails"],
+            question: question_optional.value_of("question"),
         }
     }
-    fn answer(&self, question: &str, repeat_question: bool) {
+    pub fn answer(&self) {
         let select = rand::thread_rng().gen_range(0..self.answers.len());
-        if repeat_question {
-            println!("{} {}", question, self.answers[select]);
-        } else {
-            println!("{}", self.answers[select]);
+        match self.question {
+            Some(q) => println!("{}\n{}", q, self.answers[select]),
+            None => println!("{}", self.answers[select]),
         }
     }
 }

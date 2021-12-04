@@ -1,27 +1,31 @@
 use rand::rngs::ThreadRng;
 use rand::Rng;
+use clap::ArgMatches;
 
-pub enum TestType {
-    DIS,
-    NORM,
-    ADV,
-    DEFAULT,
+enum TestType {
+    Dis,
+    Norm,
+    Adv,
 }
 
 pub struct TinyD6 {
     rand: ThreadRng,
+    roll_type: TestType,
 }
 
-impl Default for TinyD6 {
-    fn default() -> Self {
-        Self::new()
-    }
-}
 
 impl TinyD6 {
-    pub fn new() -> TinyD6 {
+    pub fn new(matches: &ArgMatches) -> TinyD6 {
         let rand = rand::thread_rng();
-        TinyD6 { rand }
+        let mut roll_type = TestType::Norm;
+        if matches.is_present("adv") {
+            if matches.value_of("adv").unwrap().eq_ignore_ascii_case("adv") {
+                roll_type = TestType::Adv;
+            } else if matches.value_of("adv").unwrap().eq_ignore_ascii_case("dis") {
+                roll_type = TestType::Dis;
+            }
+        }
+        TinyD6 { rand, roll_type }
     }
 
     fn get_roll(&mut self, number_rolls: u8) {
@@ -76,12 +80,11 @@ impl TinyD6 {
         output
     }
 
-    pub fn roll(&mut self, roll_type: TestType) {
-        match roll_type {
-            TestType::ADV => self.get_roll(3),
-            TestType::DIS => self.get_roll(1),
-            TestType::NORM => self.get_roll(2),
-            TestType::DEFAULT => self.get_roll(2),
+    pub fn roll(&mut self) {
+        match self.roll_type {
+            TestType::Adv => self.get_roll(3),
+            TestType::Dis => self.get_roll(1),
+            TestType::Norm => self.get_roll(2),
         };
     }
 }

@@ -1,12 +1,12 @@
-use crate::answer::AnswerProvider;
 use rand::Rng;
 
 pub struct Crystal<'a> {
     answers: Vec<&'a str>,
+    question: &'a str,
 }
 
-impl<'a> AnswerProvider<'a> for Crystal<'a> {
-    fn new() -> Crystal<'a> {
+impl<'a> Crystal<'a> {
+    pub fn new(question: &'a str) -> Crystal<'a> {
         let answers = vec![
             "It is certain.",
             "It is decidedly so.",
@@ -29,15 +29,11 @@ impl<'a> AnswerProvider<'a> for Crystal<'a> {
             "Very doubtful.",
         ];
 
-        Crystal { answers }
+        Crystal { answers, question }
     }
 
-    fn answer(&self, question: &str, repeat_question: bool) {
+    pub fn answer(&self) {
         let selection = rand::thread_rng().gen_range(0..self.answers.len());
-        if repeat_question {
-            println!("{} {}", question, self.answers[selection]);
-        } else {
-            println!("{}", self.answers[selection]);
-        }
+        println!("{}\n{}", self.question, self.answers[selection]);
     }
 }
