@@ -1,12 +1,14 @@
 use rand::Rng;
+use clap::ArgMatches;
 
 pub struct Crystal<'a> {
     answers: Vec<&'a str>,
-    question: &'a str,
+    question: Option<&'a str>,
+    repeat: bool,
 }
 
 impl<'a> Crystal<'a> {
-    pub fn new(question: &'a str) -> Crystal<'a> {
+    pub fn new(matches: &'a ArgMatches) -> Crystal<'a> {
         let answers = vec![
             "It is certain.",
             "It is decidedly so.",
@@ -29,11 +31,24 @@ impl<'a> Crystal<'a> {
             "Very doubtful.",
         ];
 
-        Crystal { answers, question }
+        Crystal {
+            answers,
+            question: matches.value_of("question"),
+            repeat: matches.is_present("repeat"),
+        }
     }
 
     pub fn answer(&self) {
         let selection = rand::thread_rng().gen_range(0..self.answers.len());
-        println!("{}\n{}", self.question, self.answers[selection]);
+        match self.question {
+            Some(q) => {
+                if self.repeat {
+                    println!("You asked \"{}\"\n{}", q, self.answers[selection]);
+                } else {
+                    println!("{}", self.answers[selection]);
+                }
+            },
+            None => println!("{}", self.answers[selection]),
+        }
     }
 }

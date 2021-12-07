@@ -1,4 +1,4 @@
-use clap::{App, Arg};
+use clap::{App, Arg, ArgMatches};
 
 use oracle::tinyd6::TinyD6;
 use oracle::coin::Coin;
@@ -10,6 +10,14 @@ fn main() {
         .author(clap::crate_authors!("\n"))
         .about(clap::crate_description!())
         .version(clap::crate_version!())
+        .arg(Arg::new("question")
+             .about("Question to be answered.")
+             .global(true))
+        .arg(Arg::new("repeat")
+             .about("Repeat the question in the output")
+             .long("repeat")
+             .short('r')
+             .global(true))
         .subcommand(
             App::new("tinyd6")
             .about("Rolls tests for tinyd6")
@@ -19,32 +27,26 @@ fn main() {
                  .possible_value("dis")))
         .subcommand(
             App::new("coin")
-            .about("Flips a coin.")
-            .arg(Arg::new("question")
-                 .about("Question to be answered.")))
+            .about("Flips a coin."))
         .subcommand(
             App::new("yesno")
-            .about("Answers with a yes or a no.")
-            .arg(Arg::new("question").
-                 about("Question to be answered.")))
-        .arg(Arg::new("question")
-             .about("Question to be answered."))
+            .about("Answers with a yes or a no."))
         .get_matches();
 
-    if let Some(matches) = matches.subcommand_matches("tinyd6") {
-        TinyD6::new(matches).roll();
-    } else if let Some(matches) = matches.subcommand_matches("coin") {
-        Coin::new(matches).answer();
-    }  else if let Some(matches) = matches.subcommand_matches("yesno") {
-        Yesno::new(matches).answer();
+    match matches.subcommand() {
+        Some(("tinyd6", subcmd)) => TinyD6::new(&subcmd).roll(),
+        Some(("coin", subcmd)) => Coin::new(&subcmd).answer(),
+        Some(("yesno", subcmd)) => Yesno::new(&subcmd).answer(),
+        Some((&_, subcmd)) => run_default(&subcmd),
+        None => run_default(&matches),
+    }
+}
+
+fn run_default(matches: &ArgMatches) {
+    if matches.is_present("question") {
+        Crystal::new(matches).answer();
     } else {
-        // See if we a have question at the very least and if not, warn user.
-        if matches.is_present("question") {
-            let question = matches.value_of("question").unwrap();
-            Crystal::new(question).answer();
-        } else {
-            eprintln!("How can I answer a question that you haven't asked?");
-            std::process::exit(1);
-        }
+        eprintln!("How can I answer a question that you haven't asked?");
+        std::process::exit(1);
     }
 }
